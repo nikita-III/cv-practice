@@ -120,7 +120,14 @@ def _fill_rhombus(mask: np.ndarray, #p math to fill 1 scratch preset
                   p1: Point, p2: Point,
                   half_diag_fraction: float = 0.02) -> None:
     """
-    tbd
+    сначала вычисляем смещение, середину и наклон,
+    потом смещение относительно центра для точек на перпеникуяре,
+    потом сами точки на перпендикуляре, и проверяем ромб на вырожденность,
+    если вырожден - рисуем небольшими прирощениями отрезок,
+    иначе бежим по огибающему прямоугольнику и заливаем
+    всё, что внутри ромба
+    (большая точность не нужна, ибо царапины не обязательно имеют
+    строго ромбическую форму)
     """
     h, w = mask.shape[:2]
     y1, x1 = int(p1[0]), int(p1[1])
@@ -146,9 +153,9 @@ def _fill_rhombus(mask: np.ndarray, #p math to fill 1 scratch preset
     y_off = offset * cos_a
 
     py3 = my + y_off
-    px3 = mx + x_off
+    px3 = mx - x_off
     py4 = my - y_off
-    px4 = mx - x_off
+    px4 = mx + x_off
 
     cross_3 = (y2 - y1) * (px3 - x1) - (x2 - x1) * (py3 - y1)
     cross_4 = (y2 - y1) * (px4 - x1) - (x2 - x1) * (py4 - y1)
@@ -194,7 +201,7 @@ def generate_scratches(image_shape: Tuple[int, ...], #p generate scratch presets
                        max_length: float = None
                        ) -> List[Tuple[Point, Point, int]]:
     """
-    tbd
+    генерирует не более заданного количества и не уходит в лайвлок
     """
     h, w = image_shape[:2]
     # Количество: не более area*0.025, если не задано явно
